@@ -40,6 +40,7 @@ public class FibMatrixBig {
     static void runFullExperiment(String resultsFileName){
 
 
+        BigInteger bigResult;
         long result = 0;
         long inputsize = 1;
         try {
@@ -85,7 +86,8 @@ public class FibMatrixBig {
             {
 
                 //call to the fibonaccifuntion gave more descriptive name than fib
-                result = fibonacciFunction(i+1);
+                bigResult = fibonacciFunction(i+1);
+                result = bigResult.longValue();
 
 
 
@@ -114,26 +116,41 @@ public class FibMatrixBig {
 
 
 
-    public static long fibonacciFunction(int x)
+    public static BigInteger fibonacciFunction(int x)
     {
 
 
 
         int i;
         int y;
-        long total = 0;
+        BigInteger total = new BigInteger("0");
         long result;
+        BigInteger m00 = new BigInteger("1");
+        BigInteger m01 = new BigInteger("1");
+        BigInteger m10 = new BigInteger("1");
+        BigInteger m11 = new BigInteger("0");
         // getting rid of the zero right away
         if(x == 1)
         {
-            return 0;
+            return m11;
         }
 
         //making the matrix that will be changed the most and the temp matrix so that the original
         //matrix can be used again
         //bit array to keep track of the 8 bit that will be used
-        long matrix[][] = {{1,1},{1,0}};
-        long tempMatrix[][]={{1,1},{1,0}};
+        BigInteger matrix[][] = new BigInteger[2][2];
+        matrix[0][0] = m00;
+        matrix[0][1] = m01;
+        matrix[1][0] = m10;
+        matrix[1][1] = m11;
+
+        BigInteger tempMatrix[][] = new BigInteger[2][2];
+        matrix[0][0] = m00;
+        matrix[0][1] = m01;
+        matrix[1][0] = m10;
+        matrix[1][1] = m11;
+
+
         long powerBitArray[] = {0,0,0,0,0,0,0,0};
         //function call to see what binary number we are working with
         powerBitArray = bitFinder(x,powerBitArray);
@@ -160,6 +177,7 @@ public class FibMatrixBig {
                     //System.out.println("results "+ result);
                     matrix = multiplyResuts(matrix, tempMatrix);
                 }
+
 
 
             }
@@ -249,15 +267,31 @@ public class FibMatrixBig {
         }
         return product;
     }
-    public static long[][] multiplyMatrix( int y )
+    public static BigInteger[][] multiplyMatrix( int y )
     {
         int k;
         //matrix filled with starting numbers and same matrix is as well so te same numbers can be used again.
-        long matrix[][] = {{1,1},{1,0}};
-        long sameMatrix[][] = {{1,1},{1,0}};
-        long matrixInput1;
-        long matrixInput2;
-        long matrixInput3;
+        BigInteger matrix[][] = new BigInteger[2][2];
+        BigInteger m00 = new BigInteger("1");
+        BigInteger m01 = new BigInteger("1");
+        BigInteger m10 = new BigInteger("1");
+        BigInteger m11 = new BigInteger("0");
+        matrix[0][0] = m00;
+        matrix[0][1] = m01;
+        matrix[1][0] = m10;
+        matrix[1][1] = m11;
+
+        BigInteger samematrix[][] = new BigInteger[2][2];
+        BigInteger m002 = new BigInteger("1");
+        BigInteger m012 = new BigInteger("1");
+        BigInteger m102 = new BigInteger("1");
+        BigInteger m112 = new BigInteger("0");
+        matrix[0][0] = m002;
+        matrix[0][1] = m012;
+        matrix[1][0] = m102;
+        matrix[1][1] = m112;
+
+        BigInteger matrixInput1, matrixInput2, matrixInput3;
 
         //filling input holders to be used to fill other part of the matrix because of the pattern of growth
         matrixInput1 = matrix[0][0];
@@ -268,39 +302,46 @@ public class FibMatrixBig {
         {
             //multiplys the first matrix and then the inputs that are stored fill the other matrix positions since
             //this part is linear
-            matrix[0][0] = matrix [0][0] * sameMatrix[0][0] + sameMatrix[1][0] * matrix[1][0];
+            //matrix[0][0] = matrix [0][0].multiply(sameMatrix[0][0]).add(sameMatrix[1][0]. matrix[1][0]);
 
-            matrix[0][1] = matrixInput1;
-            matrix[1][0] = matrixInput1;
-            matrix[1][1] = matrixInput2;
+
+
+            m00 = (m00.multiply(m002)).add((m102.multiply(m10)));
+            m01 = matrixInput1;
+            m10 = matrixInput1;
+            m11 = matrixInput2;
 
             //filling the matrix inputs with new data to be put in the right and bottom corners.
-            matrixInput1 = matrix[0][0];
-            matrixInput2 = matrix[0][1];
-            matrixInput3 = matrix[1][1];
+            matrixInput1 = m00;
+            matrixInput2 = m01;
+            matrixInput3 = m11;
 
 
         }
+        matrix[0][0] = m00;
+        matrix[0][1] = m01;
+        matrix[1][0] = m10;
+        matrix[1][1] = m11;
 
         return matrix;
 
     }
     //multiplying two of the reults from different exponent powers
-    public static long[][] multiplyResuts (long matrixOne[][],long matrixTwo[][] )
+    public static BigInteger[][] multiplyResuts (BigInteger matrixOne[][],BigInteger matrixTwo[][] )
     {
         //temp given such as they are temporary holders of the result as not to mess with
         // the multiplication that need the same numbers more than once
 
 
         BigInteger a,b,c,d,e,f,g,h;
-        a = BigInteger.valueOf(matrixOne[0][0]);
-        b = BigInteger.valueOf(matrixOne[1][0]);
-        c = BigInteger.valueOf(matrixOne[1][1]);
-        d = BigInteger.valueOf(matrixOne[0][1]);
-        e = BigInteger.valueOf(matrixTwo[0][0]);
-        f = BigInteger.valueOf(matrixTwo[1][0]);
-        g = BigInteger.valueOf(matrixTwo[1][1]);
-        h = BigInteger.valueOf(matrixTwo[0][1]);
+        a = matrixOne[0][0];
+        b = matrixOne[1][0];
+        c = matrixOne[1][1];
+        d = matrixOne[0][1];
+        e = matrixTwo[0][0];
+        f = matrixTwo[1][0];
+        g = matrixTwo[1][1];
+        h = matrixTwo[0][1];
 
 
 
@@ -316,10 +357,11 @@ public class FibMatrixBig {
         BigInteger temp4 = (b.multiply(h)).add((c.multiply(g)));
 
         //System.out.println(temp1);
-        matrixOne[0][0] = temp1.longValue();
-        matrixOne[1][0] = temp2.longValue();
-        matrixOne[0][1] = temp3.longValue();
-        matrixOne[1][1] = temp4.longValue();
+        matrixOne[0][0] = temp1;
+        matrixOne[1][0] = temp2;
+        matrixOne[0][1] = temp3;
+        matrixOne[1][1] = temp4;
+
 
         return matrixOne;
     }
